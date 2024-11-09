@@ -3,7 +3,11 @@ package com.apptware.interview.stream.impl;
 import com.apptware.interview.stream.DataReader;
 import com.apptware.interview.stream.PaginationService;
 import jakarta.annotation.Nonnull;
+
+import java.util.*;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +38,10 @@ class DataReaderImpl implements DataReader {
     // Placeholder for paginated data fetching logic
     // The candidate will add the actual implementation here
 
-    Stream<String> dataStream =
-        Stream.empty(); // Temporary, will be replaced by the actual data stream
-    return dataStream.peek(item -> log.info("Fetched Item: {}", item));
+    return Stream.iterate(0, page -> page + 1)
+            .map(page -> paginationService.getPaginatedData(page + 1, 100))
+            .takeWhile(pageData -> !pageData.isEmpty())
+            .flatMap(Collection::stream)
+            .peek(item -> log.info("Fetched Item: {}", item));
   }
 }
